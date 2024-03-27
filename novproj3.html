@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Zeyada&display=swap" rel="stylesheet">
+
+<link href="https://fonts.googleapis.com/css2?family=Ephesis&display=swap" rel="stylesheet">
+
+<link href="https://fonts.googleapis.com/css2?family=Shadows+Into+Light&display=swap" rel="stylesheet">
+
+<style>
+
+body {
+  font-family: 'Shadows Into Light', cursive;
+  margin: 0 auto;
+  max-width: 600px;
+  background: #89CFF0;
+}
+div {
+  height: 300px;
+  background-size: cover;
+  position: relative;
+  margin: 40px 0 0 0;
+  border-radius: 12px;
+}
+h1 {
+  font-family: 'Zeyada', cursive;
+  text-align: center;
+  font-size: 75px;
+  color: #FF00FF;
+  margin: 60px 0 0 0;
+}
+h2 {
+  text-align: center;
+  color: #9D446E;
+  margin: 0px 0 70px 0;
+  font-family: 'Ephesis', cursive;
+}
+p {
+  font-family: 'Shadows Into Light', cursive;
+  color: yellow;
+  background: purple;
+  background: linear-gradient(bottom, rgba(156,81,182,.4), rgba(156,81,182,.4));
+  background: -webkit-linear-gradient(bottom, rgba(156,81,182,.4), rgba(156,81,82,.4));
+  background: -moz-linear-gradient(bottom, rgba(156,81,182,.4), rgba(156,81,182,.4));
+  padding: 10px;
+  line-height: 28px;
+  text-align: justify;
+  position: absolute;
+  bottom: 0;
+  margin: 0;
+  height: 35px;
+  transition: height .7s;
+  -webkit-transition: height .5s;
+  -moz-transition: height .5s;
+}
+
+small {
+  opacity: 0;
+}
+
+.show-description p {
+  height: 150px;
+}
+
+.show-description small {
+  opacity: 1;
+}
+
+.first{
+  background-image: url("https://m.media-amazon.com/images/I/71wa1LQhyCS.jpg");
+}
+.second{
+  background-image: url("https://media.karousell.com/media/photos/products/2023/5/17/twilight_inspiredcaesthetic_pi_1684309778_ecb31999_progressive.jpg");
+}
+.dessert{
+  background-image: url("https://i.etsystatic.com/27052165/r/il/478e29/4863846140/il_fullxfull.4863846140_qgei.jpg");
+}
+.price {
+  float: right;
+}
+
+input {
+  font-size: 22px;
+}
+
+@media (max-width: 500px) {
+  h1 {
+    font-size: 50px;
+    margin-top: 20px;
+    line-height: 40px;
+  }
+  h2 {
+    font-size: 20px;
+    margin: 20px 0 30px 0;
+  }
+  div {
+    margin: 20px 12px 0 12px;
+  }
+  p {
+    font-size: 20px;
+    line-height: 24px;
+  }
+  small {
+    font-size: 16px;
+  }
+
+
+}
+
+</style>
+
+</head>
+
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+  import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
+
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyCk17nfx_oIrJxFv0nCRJv1Zss8PtqLuVA",
+    authDomain: "beaded-jewellery-website.firebaseapp.com",
+    projectId: "beaded-jewellery-website",
+    storageBucket: "beaded-jewellery-website.appspot.com",
+    messagingSenderId: "766982975037",
+    appId: "1:766982975037:web:3b2474683aa2a69629c454",
+    measurementId: "G-ZV10WTEF2Q"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  const Name = document.querySelector("#Name") 
+  const Email = document.querySelector("#Email")
+  const quantities = document.querySelectorAll(".quantities") 
+  const prices = document.querySelectorAll(".price") 
+  const itemsList = ["bracelet", "necklace", "chain"]
+  document.querySelector('#submit').addEventListener('click', Submit)
+
+  function Submit() {
+        const timestamp = buildTimestamp()
+	  let total = 0
+	  let cart = { }
+	  for  (let i=0; i<quantities.length; i=i+1) {
+	  	if (quantities[i].value != "0" && quantities[i].value != "") {
+		        let price = prices[i].innerHTML.replace('$', '')
+			total = total + quantities[i].value * price 	
+	  		cart[itemsList[i]] = parseInt(quantities[i].value) 
+	  	}
+	  	quantities[i].value = ""
+	  }
+	  
+
+          set(ref(db, timestamp), {
+		Name: Name.value,
+		email: Email.value,
+		cart: cart,
+		totalPrice: total,
+		paid: "not yet",
+		 
+	});
+	
+	Name.value = ""
+	Email.value = ""
+	
+}
+
+
+  function buildTimestamp() {
+    const now = new Date();
+    let timestamp = now.getFullYear().toString() + "/";
+    //const month = now.toLocaleString('default', { month: 'long' });
+
+    let month = now.getMonth()+1   //add 1 because Javascript uses 0 for January
+    month = month.toString()
+    month = addLeadingZero(month)
+    timestamp += month + "/"; 
+
+    let date = now.getDate().toString()
+    date = addLeadingZero(date)
+    timestamp += date + "/";
+
+    let hours = now.getHours().toString()
+    hours = addLeadingZero(hours)
+    timestamp += hours + ":";
+
+    let minutes = now.getMinutes().toString()
+    minutes = addLeadingZero(minutes)
+    timestamp += minutes + ":";
+
+    let seconds = now.getSeconds().toString()
+    seconds = addLeadingZero(seconds)
+    timestamp += seconds;
+
+    return timestamp
+  }
+
+  function addLeadingZero(units) {
+  	if (units.length < 2) {
+  		units = "0" + units
+  	}
+  	return units
+  }
+  
+  
+  </script>
+  
+<body>
+<h1>String Beads</h1>
+<h2>a beaded jewellery shop</h2>
+<div class="first">
+<input class="quantities" type="number" min="0" style="width: 50px">
+  <p>Candy Beaded Charm Bracelet <span class="price">$7</span><br />
+  <small>Add a splash of vibrant personality to your wrist with our dazzling and whimsical colorful beaded bracelet adorned with charming trinkets. Handcrafted with an assortment of lively beads in a kaleidoscope of hues, this bracelet exudes a playful and stylish allure. Each intricately designed charm brings its own story and flair, creating a delightful melody of colors and symbols that effortlessly complement any outfit. Whether you're seeking a pop of color or a whimsical accent, this bracelet is a perfect fusion of charm and sophistication, adding a touch of joyous elegance to your ensemble. </small></p>
+</div>
+ 
+ <div class="second">
+  <input class="quantities" type="number" min="0" style="width: 50px">
+  <p>Twillight Inspired Necklace <span class="price">$22</span><br />
+  <small>Evoke the enchanting allure of a starlit night with our Twilight-inspired beaded necklace. Crafted with meticulous detail and infused with the mystique of the celestial realm, this necklace captures the ethereal essence of twilight. Featuring an array of shimmering beads that evoke the colors of a dusky sky, intertwined with delicate accents reminiscent of twinkling stars, it radiates an otherworldly beauty. Each bead holds a mesmerizing quality, reflecting the captivating hues of twilight, while the design exudes an air of subtle magic and elegance. This necklace is a wearable ode to the bewitching moments between day and night, adding a touch of celestial grace to your style.</small></p>
+</div>
+ 
+<div class="dessert">
+<input class="quantities" type="number" min="0" style="width: 50px"> 
+  <p> Pastel beaded waist chain <span class="price">$8</span><br />
+  <small>
+Indulge in the soft, dreamy allure of our pastel-colored beaded waist chain—an exquisite accessory designed to accentuate your unique style. Delicately crafted with an array of soothing pastel hues, this waist chain embodies a gentle elegance that effortlessly enhances any outfit. The beads, adorned in shades reminiscent of a serene sunrise or a tranquil garden, exude a subtle yet captivating charm. Whether paired with casual wear or evening attire, this waist chain is a statement piece that embodies the essence of refined beauty and adds a whimsical touch to your look.</small></p>
+</div>
+<br><br>
+  <input id="Name" placeholder="Name">
+  <input id="Email" placeholder="Your email">
+  <input id="submit" type="submit">
+<br><br>
+
+<script>
+  $('div').on('click', function() {
+      $(this).toggleClass('show-description');
+  });
+
+  	      </script>
